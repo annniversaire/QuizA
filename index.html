@@ -622,6 +622,7 @@ body.intro-lock{overflow:hidden}
     <div id="intro3" class="intro-line">&gt; EXPÉDITEUR : CHEB ABDELHAK</div>
     <div id="intro4" class="intro-line ok">&gt; IDENTITÉ CONFIRMÉE ✓✓</div>
     <div id="intro5" class="intro-line joke">&gt; AUTORITÉ DE VALIDATION : CHEIKH NANI</div>
+    <div id="intro6" class="intro-line joke">&gt; REDIRECTION EN COURS...<span class="intro-cursor"></span></div>    
   </div>
 </div>
 
@@ -717,7 +718,7 @@ body.intro-lock{overflow:hidden}
 ========================= */
 (function(){
   const intro = document.getElementById("introSequence");
-  const lines = [1,2,3,4,5].map(n => document.getElementById("intro"+n));
+  const lines = [1,2,3,4,5,6].map(n => document.getElementById("intro"+n));
 
   // Les lignes apparaissent successivement sur écran noir.
   lines.forEach((line, i) => {

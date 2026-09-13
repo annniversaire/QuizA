@@ -607,6 +607,56 @@
   margin-top:8px;
 }
 
+.intro-refresh{
+  display:none;
+  width:52px;
+  height:52px;
+  margin:18px auto 0;
+  padding:0;
+  border:1px solid #555;
+  border-radius:50%;
+  background:#111;
+  color:#ddd;
+  font-family:Arial,sans-serif;
+  font-size:32px;
+  line-height:1;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.intro-refresh.show{
+  display:grid;
+  place-items:center;
+  animation:introRefreshAppear .5s ease;
+}
+
+.intro-refresh:hover{
+  background:#222;
+  border-color:#888;
+  transform:rotate(-25deg);
+}
+
+.intro-refresh:active{
+  transform:scale(.92) rotate(-25deg);
+}
+
+.intro-refresh:focus-visible{
+  outline:2px solid #ddd;
+  outline-offset:3px;
+}
+
+@keyframes introRefreshAppear{
+  from{
+    opacity:0;
+    transform:scale(.6) rotate(-90deg);
+  }
+  to{
+    opacity:1;
+    transform:scale(1) rotate(0);
+  }
+}
+
 .intro-choices{
   display:flex;
   gap:12px;
@@ -706,6 +756,10 @@ body.intro-lock{overflow:hidden}
       <span class="intro-cursor"></span>
     </div>
     <div id="introResult" class="intro-line"></div>
+
+    <button type="button" id="introRefresh" class="intro-refresh" aria-label="Actualiser la page" title="Actualiser la page">
+      ↻
+    </button>
 
     <div id="introChoices" class="intro-choices" aria-label="Choisir une réponse">
       <button type="button" id="introYes">&gt; Y — OUI</button>
@@ -818,6 +872,7 @@ body.intro-lock{overflow:hidden}
   const choices = document.getElementById("introChoices");
   const yesButton = document.getElementById("introYes");
   const noButton = document.getElementById("introNo");
+  const refreshButton = document.getElementById("introRefresh");
 
   let waitingForAnswer = false;
   let finished = false;
@@ -920,7 +975,9 @@ body.intro-lock{overflow:hidden}
 
       setTimeout(() => {
         result.textContent =
-          "> (ACTUALISE LA PAGE SI TU CHANGES D'AVIS)روح روح روح تعط٠٠٠٠";
+          "> روح روح روح تعط٠٠٠٠";
+
+        refreshButton.classList.add("show");
       }, 2400);
 
     }
@@ -951,6 +1008,12 @@ body.intro-lock{overflow:hidden}
 
   noButton.addEventListener("click", function(){
     handleAnswer("N");
+  });
+
+  /* Actualisation de la page après un refus */
+
+  refreshButton.addEventListener("click", function(){
+    window.location.reload();
   });
 
 })();

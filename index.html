@@ -606,6 +606,65 @@
 #introResult{
   margin-top:8px;
 }
+
+.intro-choices{
+  display:flex;
+  gap:12px;
+  margin-top:18px;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+
+.intro-choices.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.intro-choices button{
+  width:auto;
+  min-width:150px;
+  min-height:48px;
+  padding:10px 18px;
+  border:1px solid #555;
+  border-radius:6px;
+  background:#111;
+  color:#ddd;
+  font-family:"Courier New",monospace;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+
+.intro-choices button:hover{
+  background:#222;
+  border-color:#888;
+}
+
+.intro-choices button:active{
+  transform:scale(.97);
+}
+
+.intro-choices button:focus-visible{
+  outline:2px solid #ddd;
+  outline-offset:3px;
+}
+
+@media (max-width:600px){
+  .intro-choices{
+    width:100%;
+    gap:10px;
+  }
+
+  .intro-choices button{
+    flex:1;
+    min-width:0;
+    min-height:52px;
+    font-size:15px;
+  }
+}
+
 .intro-cursor{
   display:inline-block;
   width:9px;
@@ -624,12 +683,18 @@ body.intro-lock{overflow:hidden}
 
 <body class="intro-lock">
 
+  <!-- =========================
+       MUSIQUES Y / N
+  ========================= -->
+  <audio id="musicYes" src="musique-yes.mp3" preload="auto"></audio>
+  <audio id="musicNo" src="musique-no.mp3" preload="auto"></audio>
+
 <!-- =========================
      SÉQUENCE D'OUVERTURE
 ========================= -->
 <div id="introSequence" aria-live="polite">
   <div class="intro-terminal">
-    <div id="intro1" class="intro-line">&gt; CONNEXION ÉTABLIE…</span></div>
+    <div id="intro1" class="intro-line">&gt; CONNEXION ÉTABLIE…</div>
     <div id="intro2" class="intro-line">&gt; DESTINATAIRE : AMEN</div>
     <div id="intro3" class="intro-line">&gt; EXPÉDITEUR : CHEB ABDELHAK</div>
     <div id="intro4" class="intro-line ok">&gt; IDENTITÉ CONFIRMÉE ✓</div>
@@ -640,7 +705,12 @@ body.intro-lock{overflow:hidden}
       <span id="introAnswer" class="intro-answer"></span>
       <span class="intro-cursor"></span>
     </div>
-    <div id="introResult" class="intro-line"></div>    
+    <div id="introResult" class="intro-line"></div>
+
+    <div id="introChoices" class="intro-choices" aria-label="Choisir une réponse">
+      <button type="button" id="introYes">&gt; Y — OUI</button>
+      <button type="button" id="introNo">&gt; N — NON</button>
+    </div>    
   </div>
 </div>
 
@@ -745,6 +815,9 @@ body.intro-lock{overflow:hidden}
   const question = document.getElementById("introQuestion");
   const answer = document.getElementById("introAnswer");
   const result = document.getElementById("introResult");
+  const choices = document.getElementById("introChoices");
+  const yesButton = document.getElementById("introYes");
+  const noButton = document.getElementById("introNo");
 
   let waitingForAnswer = false;
   let finished = false;
@@ -768,37 +841,42 @@ body.intro-lock{overflow:hidden}
 
   setTimeout(() => {
     question.classList.add("show");
+    choices.classList.add("show");
     waitingForAnswer = true;
   }, questionDelay);
 
   /* ---------------------------------
-     Gestion clavier Y / N
+     Validation Y / N
+     Clavier + boutons tactiles
   --------------------------------- */
 
-  document.addEventListener("keydown", function(e){
+  function handleAnswer(key){
 
     if(!waitingForAnswer || finished){
       return;
     }
 
-    const key = e.key.toUpperCase();
+    key = key.toUpperCase();
 
     if(key !== "Y" && key !== "N"){
       return;
     }
 
-    e.preventDefault();
-
     waitingForAnswer = false;
     finished = true;
 
     answer.textContent = key;
+    choices.classList.remove("show");
 
     /* =========================
        OUI → QUIZ
     ========================= */
 
     if(key === "Y"){
+
+      const musicYes = document.getElementById("musicYes");
+      musicYes.currentTime = 0;
+      musicYes.play().catch(() => {});
 
       result.textContent =
         "> REDIRECTION EN COURS ✓";
@@ -825,6 +903,10 @@ body.intro-lock{overflow:hidden}
 
     else{
 
+      const musicNo = document.getElementById("musicNo");
+      musicNo.currentTime = 0;
+      musicNo.play().catch(() => {});
+
       result.textContent =
         "> ACCÈS REFUSÉ.";
 
@@ -838,11 +920,37 @@ body.intro-lock{overflow:hidden}
 
       setTimeout(() => {
         result.textContent =
-          "> (ACTUALISE LA PAGE SI TU CHANGE D'AVIS)روح روح روح تعط٠٠٠٠. 😏";
+          "> (ACTUALISE LA PAGE SI TU CHANGES D'AVIS)روح روح روح تعط٠٠٠٠";
       }, 2400);
 
     }
+  }
 
+  /* Clavier ordinateur */
+
+  document.addEventListener("keydown", function(e){
+
+    if(!waitingForAnswer){
+      return;
+    }
+
+    const key = e.key.toUpperCase();
+
+    if(key === "Y" || key === "N"){
+      e.preventDefault();
+      handleAnswer(key);
+    }
+
+  });
+
+  /* Boutons tactiles mobile */
+
+  yesButton.addEventListener("click", function(){
+    handleAnswer("Y");
+  });
+
+  noButton.addEventListener("click", function(){
+    handleAnswer("N");
   });
 
 })();
